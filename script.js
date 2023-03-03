@@ -4,6 +4,9 @@ const max = 300;
 const canvas = document.createElement("canvas");
 const $ = canvas.getContext('2d');
 const body = document.body;
+const toggle = document.getElementById("toggle");
+const menu = document.getElementById("menu");
+const plus = document.getElementById("plus");
 const particles = [];
 
 body.style.backgroundColor = "black";
@@ -106,22 +109,32 @@ function touches(e) {
   point.y = e.touches ? e.touches[0].clientY : e.clientY;
 }
 
+function reformat() {
+    body.style.backgroundColor = "black";
+    body.style.height = "100%";
+    body.style.overflow = "hidden";
+    body.style.margin = "0px";
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    point = { x: width / 2, y: height / 2 };
+}
+
 function setup() {
   
-  document.getElementById("toggle").addEventListener("click", () => {
+  toggle.addEventListener("click", () => {
   if(check==0){
-    document.getElementById("menu").style.transform="scale(3)";
-    document.getElementById("plus").style.transition="0.7s";
-    document.getElementById("plus").style.transform="rotate(225deg)";
-    document.getElementById("plus").style.color="rgba(0, 0, 0, 0.5)";
+    menu.style.transform="scale(3)";
+    plus.style.transition="0.7s";
+    plus.style.transform="rotate(225deg)";
+    plus.style.color="rgba(0, 0, 0, 0.5)";
     check=1;
     particles.forEach(p => { p.trigger(); });
 
   }
   else{
-    document.getElementById("menu").style.transform="scale(0)";
-    document.getElementById("plus").style.transform="rotate(0deg)";
-    document.getElementById("plus").style.color="black";
+    menu.style.transform="scale(0)";
+    plus.style.transform="rotate(0deg)";
+    plus.style.color="black";
     check=0;
     particles.forEach(p => { p.normal(); });
   }
@@ -134,25 +147,21 @@ function setup() {
       let p = new Particle().init();
       particles.push(p);
     }, i * 10);
-    point = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   }
-  
-  var delayInMilliseconds = 4000; //4 seconds
 
   setTimeout(function() {
-    point = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    reformat();
+  }, 250);
+
+  setTimeout(function() {
     canvas.addEventListener("mousemove", touches);
     canvas.addEventListener("touchmove", touches);
-  }, delayInMilliseconds);
+  }, 4000);
   
   canvas.addEventListener("mouseleave", () => {
     point = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   });
-  window.addEventListener("resize", () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    point = { x: width / 2, y: height / 2 };
-  });
+  window.addEventListener("resize", reformat);
   animate();
 
 }
