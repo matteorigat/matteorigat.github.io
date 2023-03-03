@@ -9,14 +9,10 @@ const menu = document.getElementById("menu");
 const plus = document.getElementById("plus");
 const particles = [];
 
-body.style.backgroundColor = "black";
-body.style.height = "100%";
-body.style.overflow = "hidden";
-body.style.margin = "0px";
 body.appendChild(canvas);
 
-let width = canvas.width = window.innerWidth;
-let height = canvas.height = window.innerHeight;
+let width = canvas.width = body.style.width = window.innerWidth;
+let height = canvas.height = body.style.height =  window.innerHeight;
 let point = { x: width / 2, y: height / 2 };
 let hue = 0;
 let check = 0;
@@ -98,8 +94,8 @@ function animate() {
     p.draw();
   });
   hue += .3;
-  document.getElementById("fa").style.color = `hsla(${hue - 25}, 100%, 50%, 1)`;
-  document.getElementById("fa1").style.color = `hsla(${hue - 25}, 100%, 50%, 1)`;
+  document.getElementById("fa").style.color = 
+  document.getElementById("fa1").style.color = 
   document.getElementById("fa2").style.color = `hsla(${hue - 25}, 100%, 50%, 1)`;
   window.requestAnimationFrame(animate);
 }
@@ -110,12 +106,8 @@ function touches(e) {
 }
 
 function reformat() {
-    body.style.backgroundColor = "black";
-    body.style.height = "100%";
-    body.style.overflow = "hidden";
-    body.style.margin = "0px";
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+    width = canvas.width = body.style.width = window.innerWidth;
+    height = canvas.height = body.style.height =  window.innerHeight;
     point = { x: width / 2, y: height / 2 };
 }
 
@@ -159,7 +151,7 @@ function setup() {
   }, 4000);
   
   canvas.addEventListener("mouseleave", () => {
-    point = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    point = { x: width / 2, y: height / 2 };
   });
   window.addEventListener("resize", reformat);
   animate();
@@ -167,4 +159,3 @@ function setup() {
 }
 
 setup();
-
