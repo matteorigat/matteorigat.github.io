@@ -9,7 +9,7 @@ const particles = [];
 body.style.backgroundColor = "black";
 body.style.height = "100%";
 body.style.overflow = "hidden";
-body.style.margin = "0px"
+body.style.margin = "0px";
 body.appendChild(canvas);
 
 let width = canvas.width = window.innerWidth;
