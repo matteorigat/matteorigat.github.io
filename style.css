@@ -2,7 +2,9 @@ body{
   background-color: black;
   padding: 0px;
   margin: 0px;
+  height: 100%;
   overflow: hidden;
+  position: fixed;
 }
 
 .toggle {
