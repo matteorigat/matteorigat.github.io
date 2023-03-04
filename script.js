@@ -63,7 +63,7 @@ Particle.prototype = {
       this.alpha += .01;
       this.x += this.velocity * cos(angle);
       this.y += this.velocity * sin(angle);
-      this.velocity += .02;
+      this.velocity += .03;
     }
   },
   reset() {
@@ -88,7 +88,7 @@ Particle.prototype = {
 
 
 function animate() {
-  $.fillStyle = `rgba(0,0,0, .2)`;
+  $.fillStyle = `rgba(0,0,0, .1)`;
   $.fillRect(0, 0, width, height);
   particles.forEach(p => {
     p.draw();
@@ -106,31 +106,30 @@ function touches(e) {
 }
 
 function reformat() {
-    width = canvas.width = body.style.width = window.innerWidth;
-    height = canvas.height = body.style.height =  window.innerHeight;
-    point = { x: width / 2, y: height / 2 };
+  width = canvas.width = body.style.width = window.innerWidth;
+  height = canvas.height = body.style.height =  window.innerHeight;
+  point = { x: width / 2, y: height / 2 };
 }
 
 function setup() {
   
   toggle.addEventListener("click", () => {
-  if(check==0){
-    menu.style.transform="scale(3)";
-    plus.style.transition="0.7s";
-    plus.style.transform="rotate(225deg)";
-    plus.style.color="rgba(0, 0, 0, 0.5)";
-    check=1;
-    particles.forEach(p => { p.trigger(); });
 
-  }
-  else{
-    menu.style.transform="scale(0)";
-    plus.style.transform="rotate(0deg)";
-    plus.style.color="black";
-    check=0;
-    particles.forEach(p => { p.normal(); });
-  }
-
+    if(check==0){
+      menu.style.transform="scale(3)";
+      plus.style.transition="0.7s";
+      plus.style.transform="rotate(225deg)";
+      plus.style.color="rgba(0, 0, 0, 0.5)";
+      check=1;
+      particles.forEach(p => { p.trigger(); });
+    }
+    else{
+      menu.style.transform="scale(0)";
+      plus.style.transform="rotate(0deg)";
+      plus.style.color="black";
+      check=0;
+      particles.forEach(p => { p.normal(); });
+    }
   });
 
 
@@ -153,6 +152,7 @@ function setup() {
   canvas.addEventListener("mouseleave", () => {
     point = { x: width / 2, y: height / 2 };
   });
+
   window.addEventListener("resize", reformat);
   animate();
 
