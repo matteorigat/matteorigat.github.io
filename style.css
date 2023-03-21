@@ -6,6 +6,12 @@ body{
   position: fixed;
 }
 
+h1 {
+  color: transparent;
+  z-index: -1;
+  position: absolute;
+}
+
 .toggle {
   height: 100px;
   width: 100px;
