@@ -1,161 +1,205 @@
+const nbButterflies = 100;
+var conf, scene, camera, light, renderer;
+var whw, whh;
 
-const { random, atan2, cos, sin, hypot } = Math;
-const max = 300;
-const canvas = document.createElement("canvas");
-const $ = canvas.getContext('2d');
-const body = document.body;
-const toggle = document.getElementById("toggle");
-const menu = document.getElementById("menu");
-const plus = document.getElementById("plus");
-const particles = [];
+var butterflies;
+var bodyTexture, wingTexture1, wingTexture2, wingTexture3, bodyTexture4, wingTexture4;
+var destination = new THREE.Vector3();
 
-body.appendChild(canvas);
+var mouse = new THREE.Vector2();
+var mouseOver = false;
+var mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+var mousePosition = new THREE.Vector3();
+var raycaster = new THREE.Raycaster();
 
-let width = canvas.width = body.style.width = window.innerWidth;
-let height = canvas.height = body.style.height =  window.innerHeight;
-let point = { x: width / 2, y: height / 2 };
-let hue = 0;
-let check = 0;
-let velocity = 0
+function init() {
+  conf = {
+    attraction: 0.01,
+    velocityLimit: 1.80,
+    move: true,
+    followMouse: false,
+    shuffle: shuffle
+  };
 
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-function Particle() {};
+  initScene();
 
-Particle.prototype = {
-  init() {
-    this.hue = hue;
-    this.alpha = 0;
-    this.size = this.random(1, 5);
-    this.x = this.random(0, width);
-    this.y = this.random(0, height);
-    if(velocity == 0){
-      this.velocity = this.size * .5;
-    } else {
-      this.velocity = velocity
-    }
-    this.changed = null;
-    this.changedFrame = 0;
-    this.maxChangedFrames = 50;
-    return this;
-  },
-  draw() {
-    $.strokeStyle = `hsla(${this.hue}, 100%, 50%, ${this.alpha})`;
-    $.beginPath();
-    $.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
-    $.stroke();
-    this.update();
-  },
-  update() {
-    if (this.changed) {
-      this.alpha *= .92;
-      this.size += 2;
-      this.changedFrame++;
-      if (this.changedFrame > this.maxChangedFrames) {
-        this.reset();
-      }
-    } else if (this.distance(point.x, point.y) < 50) {
-      this.changed = true;
-    } else {
-      let dx = point.x - this.x;
-      let dy = point.y - this.y;
-      let angle = atan2(dy, dx);
+  onWindowResize();
+  window.addEventListener('resize', onWindowResize, false);
 
-      this.alpha += .01;
-      this.x += this.velocity * cos(angle);
-      this.y += this.velocity * sin(angle);
-      this.velocity += .03;
-    }
-  },
-  reset() {
-    this.init();
-  },
-  distance(x, y) {
-    return hypot(x - this.x, y - this.y);
-  },
-  random(min, max) {
-    return random() * (max - min) + min;
-  },
-  trigger(){
-    velocity = this.velocity + 3;
-    this.velocity = velocity;
-  },
-  normal(){
-    velocity = 0;
-    this.velocity -= 3;
-  }
-  
+  document.addEventListener('mouseout', function () { mouseOver = false; }, false);
+
+  animate();
 };
 
+function initScene() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xfffffff);
 
-function animate() {
-  $.fillStyle = `rgba(0,0,0, .1)`;
-  $.fillRect(0, 0, width, height);
-  particles.forEach(p => {
-    p.draw();
-  });
-  hue += .3;
-  document.getElementById("fa").style.color = 
-  document.getElementById("fa1").style.color = 
-  document.getElementById("fa2").style.color = `hsla(${hue - 25}, 100%, 50%, 1)`;
-  window.requestAnimationFrame(animate);
-}
+  camera.position.z = 200;
 
-function touches(e) {
-  point.x = e.touches ? e.touches[0].clientX : e.clientX;
-  point.y = e.touches ? e.touches[0].clientY : e.clientY;
-}
+  bodyTexture = new THREE.TextureLoader().load('https://klevron.github.io/codepen/butterflies/b1.png');
+  wingTexture1 = new THREE.TextureLoader().load('https://klevron.github.io/codepen/butterflies/b1w.png');
+  wingTexture2 = new THREE.TextureLoader().load('https://klevron.github.io/codepen/butterflies/b2w.png');
+  wingTexture3 = new THREE.TextureLoader().load('https://klevron.github.io/codepen/butterflies/b3w.png');
+  bodyTexture4 = new THREE.TextureLoader().load('https://klevron.github.io/codepen/butterflies/b4.png');
+  wingTexture4 = new THREE.TextureLoader().load('https://klevron.github.io/codepen/butterflies/b4w.png');
 
-function reformat() {
-  width = canvas.width = body.style.width = window.innerWidth;
-  height = canvas.height = body.style.height =  window.innerHeight;
-  point = { x: width / 2, y: height / 2 };
-}
-
-function setup() {
-  
-  toggle.addEventListener("click", () => {
-
-    if(check==0){
-      menu.style.transform="scale(3)";
-      plus.style.transition="0.7s";
-      plus.style.transform="rotate(225deg)";
-      plus.style.color="rgba(0, 0, 0, 0.5)";
-      check=1;
-      particles.forEach(p => { p.trigger(); });
-    }
-    else{
-      menu.style.transform="scale(0)";
-      plus.style.transform="rotate(0deg)";
-      plus.style.color="black";
-      check=0;
-      particles.forEach(p => { p.normal(); });
-    }
-  });
-
-
-  for (let i = 0; i < max; i++) {
-    setTimeout(() => {
-      let p = new Particle().init();
-      particles.push(p);
-    }, i * 10);
+  butterflies = [];
+  for (var i = 0; i < nbButterflies; i++) {
+    var b = new Butterfly();
+    butterflies.push(b);
+    scene.add(b.o3d);
   }
 
-  setTimeout(function() {
-    reformat();
-  }, 250);
-
-  setTimeout(function() {
-    canvas.addEventListener("mousemove", touches);
-    canvas.addEventListener("touchmove", touches);
-  }, 4000);
-  
-  canvas.addEventListener("mouseleave", () => {
-    point = { x: width / 2, y: height / 2 };
-  });
-
-  window.addEventListener("resize", reformat);
-  animate();
-
+  shuffle();
 }
 
-setup();
+function animate() {
+  requestAnimationFrame(animate);
+
+  TWEEN.update();
+
+
+  if (conf.move) {
+    for (var i = 0; i < butterflies.length; i++) {
+      butterflies[i].move();
+    }
+  }
+
+  renderer.render(scene, camera);
+};
+
+function shuffle() {
+  for (var i = 0; i < butterflies.length; i++) {
+    butterflies[i].shuffle();
+  }
+}
+
+function Butterfly() {
+  this.minWingRotation = -Math.PI / 6;
+  this.maxWingRotation = Math.PI / 2 - 0.1;
+  this.wingRotation = 0;
+
+  this.velocity = new THREE.Vector3(rnd(1, true), rnd(1, true), rnd(1, true));
+  this.destination = destination;
+
+  var confs = [
+    { bodyTexture: bodyTexture, bodyW: 10, bodyH: 15, wingTexture: wingTexture1, wingW: 10, wingH: 15, wingX: 5.5 },
+    { bodyTexture: bodyTexture, bodyW: 6, bodyH: 9, wingTexture: wingTexture2, wingW: 15, wingH: 20, wingX: 7.5 },
+    { bodyTexture: bodyTexture, bodyW: 8, bodyH: 12, wingTexture: wingTexture3, wingW: 10, wingH: 15, wingX: 5.5 },
+	{ bodyTexture: bodyTexture4, bodyW: 6, bodyH: 10, bodyY: 2, wingTexture: wingTexture4, wingW: 15, wingH: 20, wingX: 8 },
+  ];
+
+  this.init(confs[Math.floor(rnd(4))]);
+}
+
+Butterfly.prototype.init = function (bconf) {
+  var geometry = new THREE.PlaneGeometry(bconf.wingW, bconf.wingH);
+  var material = new THREE.MeshBasicMaterial({ transparent: true, map: bconf.wingTexture, side: THREE.DoubleSide, depthTest: false });
+  var lwmesh = new THREE.Mesh(geometry, material);
+  lwmesh.position.x = -bconf.wingX;
+  this.lwing = new THREE.Object3D();
+  this.lwing.add(lwmesh);
+
+  var rwmesh = new THREE.Mesh(geometry, material);
+  rwmesh.rotation.y = Math.PI;
+  rwmesh.position.x = bconf.wingX;
+  this.rwing = new THREE.Object3D();
+  this.rwing.add(rwmesh);
+
+  geometry = new THREE.PlaneGeometry(bconf.bodyW, bconf.bodyH);
+  material = new THREE.MeshBasicMaterial({ transparent: true, map: bconf.bodyTexture, side: THREE.DoubleSide, depthTest: false });
+  this.body = new THREE.Mesh(geometry, material);
+  if (bconf.bodyY) this.body.position.y = bconf.bodyY;
+  // this.body.position.z = -0.1;
+
+  this.group = new THREE.Object3D();
+  this.group.add(this.body);
+  this.group.add(this.lwing);
+  this.group.add(this.rwing);
+  this.group.rotation.x = Math.PI / 2;
+  this.group.rotation.y = Math.PI;
+
+  this.setWingRotation(this.wingRotation);
+  this.initTween();
+
+  this.o3d = new THREE.Object3D();
+  this.o3d.add(this.group);
+};
+
+Butterfly.prototype.initTween = function () {
+  var duration = limit(conf.velocityLimit - this.velocity.length(), 0.1, 1.5) * 1000;
+  this.wingRotation = this.minWingRotation;
+  this.tweenWingRotation = new TWEEN.Tween(this)
+    .to({ wingRotation: this.maxWingRotation }, duration)
+    .repeat(1)
+    .yoyo(true)
+    // .easing(TWEEN.Easing.Cubic.InOut)
+    .onComplete(function(object) {
+      object.initTween();
+    })
+    .start();
+};
+
+Butterfly.prototype.move = function () {
+  var destination;
+  if (mouseOver && conf.followMouse) {
+    destination = mousePosition;
+  } else {
+    destination = this.destination;
+  }
+
+  var dv = destination.clone().sub(this.o3d.position).normalize();
+  this.velocity.x += conf.attraction * dv.x;
+  this.velocity.y += conf.attraction * dv.y;
+  this.velocity.z += conf.attraction * dv.z;
+  this.limitVelocity();
+
+  // update position & rotation
+  this.setWingRotation(this.wingRotation);
+  this.o3d.lookAt(this.o3d.position.clone().add(this.velocity));
+  this.o3d.position.add(this.velocity);
+};
+
+Butterfly.prototype.limitVelocity = function (y) {
+  this.velocity.x = limit(this.velocity.x, -conf.velocityLimit, conf.velocityLimit);
+  this.velocity.y = limit(this.velocity.y, -conf.velocityLimit, conf.velocityLimit);
+  this.velocity.z = limit(this.velocity.z, -conf.velocityLimit, conf.velocityLimit);
+};
+
+Butterfly.prototype.setWingRotation = function (y) {
+  this.lwing.rotation.y = y;
+  this.rwing.rotation.y = -y;
+};
+
+Butterfly.prototype.shuffle = function () {
+  this.velocity = new THREE.Vector3(rnd(1, true), rnd(1, true), rnd(1, true));
+  var p = new THREE.Vector3(rnd(1, true), rnd(1, true), rnd(1, true)).normalize().multiplyScalar(100);
+  this.o3d.position.set(p.x, p.y, p.z);
+  var scale = rnd(0.4) + 0.1;
+  this.o3d.scale.set(scale, scale, scale);
+}
+
+function limit(number, min, max) {
+  return Math.min(Math.max(number, min), max);
+}
+
+function rnd(max, negative) {
+  return negative ? Math.random() * 2 * max - max : Math.random() * max;
+}
+
+function onWindowResize() {
+  whw = window.innerWidth / 2;
+  whh = window.innerHeight / 2;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+init();
