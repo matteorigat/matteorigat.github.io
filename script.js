@@ -19,37 +19,42 @@ function reformat() {
   height = canvas.height = body.style.height =  window.innerHeight;
 }
 
+function start(){
+
+}
+
 function setup() {
 
   setTimeout(function() {
         
-        toggle.style.background="rgba(255, 255, 255, 0.5)";
-        toggle.style.transition="5s";
+        toggle.style.background = "rgba(255, 255, 255, 0.5)";
+        toggle.style.transition = "5s";
   }, 250);
 
   setTimeout(function() {
         
         toggle.style.boxShadow = "0px 0px 100px 1px #fff";
-        toggle.style.transition="3s";
+        toggle.style.transition = "3s";
   }, 1000);
   
+
   toggle.addEventListener("click", () => {
 
     if(check==0){
-      menu.style.transform="scale(3)";
-      plus.style.transition="0.7s";
-      plus.style.transform="rotate(225deg)";
-      check=1;
+      menu.style.transform = "scale(3)";
+      plus.style.transition = "1s";
+      plus.style.transform = "rotate(225deg)";
+      check = 1;
       toggle.style.boxShadow = "0px 0px 10px 1px #fff";
-      toggle.style.transition="0.7s";
+      toggle.style.transition = "1s";
 
     }
     else{
-      menu.style.transform="scale(0)";
-      plus.style.transform="rotate(0deg)";
-      check=0;
+      menu.style.transform = "scale(0)";
+      plus.style.transform = "rotate(0deg)";
+      check = 0;
       toggle.style.boxShadow = "0px 0px 100px 1px #fff";
-      toggle.style.transition="0.7s";
+      toggle.style.transition = "1s";
     }
   });
 
